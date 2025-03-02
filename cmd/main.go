@@ -4,6 +4,8 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -20,6 +22,8 @@ func main() {
 		zap.L().Info("request received")
 		return c.SendString("Hello, World!")
 	})
+
+	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 
 	if err := fiberApp.Listen(":3000"); err != nil {
 		zap.L().Fatal("failed to start server", zap.Error(err))

@@ -27,6 +27,10 @@ func main() {
 		return c.SendString("Hello, World!")
 	})
 
+	fiberApp.Get("/healthcheck", func(c *fiber.Ctx) error {
+		return c.SendString("OK")
+	})
+
 	fiberApp.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 
 	go func() {

@@ -7,7 +7,7 @@ import (
 )
 
 type AppConfig struct {
-	HTTPPort string `env:"HTTP_PORT" envDefault:"3000"`
+	HTTPPort string `env:"HTTP_PORT" envDefault:"8080"`
 }
 
 // NewAppConfig returns a new instance of AppConfig

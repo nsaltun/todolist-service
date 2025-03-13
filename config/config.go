@@ -8,6 +8,11 @@ import (
 
 type AppConfig struct {
 	HTTPPort string `env:"HTTP_PORT" envDefault:"8080"`
+	PostgresConfig
+}
+
+type PostgresConfig struct {
+	PostgresUrl string `env:"POSTGRES_DB_URL" envDefault:"postgres://postgres:postgres@localhost:5432/todolist?sslmode=disable"`
 }
 
 // NewAppConfig returns a new instance of AppConfig

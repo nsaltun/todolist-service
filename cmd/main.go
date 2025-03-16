@@ -15,6 +15,7 @@ import (
 	"github.com/nsaltun/todolist-service/app/todoitem"
 	"github.com/nsaltun/todolist-service/config"
 	"github.com/nsaltun/todolist-service/infra/postgres"
+	"github.com/nsaltun/todolist-service/middleware"
 	"github.com/nsaltun/todolist-service/pkg/httphandler"
 	_ "github.com/nsaltun/todolist-service/pkg/logging"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -37,11 +38,13 @@ func main() {
 	todoItemsCreateHandler := todoitem.NewCreateTodoItemHandler(todoRepo)
 
 	fiberApp := fiber.New(fiber.Config{
+		ErrorHandler: middleware.ErrorHandler(zap.L()),
 		IdleTimeout:  5 * time.Second,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 		Concurrency:  256 * 1024,
 	})
+	fiberApp.Use(middleware.RequestLogger(zap.L()))
 
 	fiberApp.Get("/", func(c *fiber.Ctx) error {
 		zap.L().Info("request received")

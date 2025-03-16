@@ -4,17 +4,18 @@ import (
 	"context"
 
 	"github.com/nsaltun/todolist-service/domain"
+	"github.com/nsaltun/todolist-service/pkg/pagination"
 )
 
 type GetTodoItemsRequest struct {
-	ID string `json:"id"`
+	Status     *string `json:"status,omitempty"`
+	SearchTerm *string `json:"search_term,omitempty"`
+	pagination.PaginationRequest
 }
 
 type GetTodoItemsResponse struct {
-	items       []domain.TodoItem
-	ID          string `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Items      []domain.TodoItem
+	Pagination pagination.PaginationResponse `json:"pagination"`
 }
 
 type GetTodoItemsHandler struct {
@@ -26,12 +27,22 @@ func NewGetTodoItemsHandler(repo Repository) *GetTodoItemsHandler {
 }
 
 func (h *GetTodoItemsHandler) Handle(ctx context.Context, r *GetTodoItemsRequest) (*GetTodoItemsResponse, error) {
-	todoItems, err := h.repo.GetTodoItems(ctx)
+	filter := domain.TodoFilter{
+		Status:     r.Status,
+		SearchTerm: r.SearchTerm,
+		Pagination: pagination.Pagination{
+			Limit:  r.Limit,
+			Offset: r.Offset,
+		},
+	}
+
+	items, total, err := h.repo.GetTodoItems(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 
 	return &GetTodoItemsResponse{
-		items: todoItems,
+		Items:      items,
+		Pagination: pagination.NewPaginationResponse(r.Limit, r.Offset, total),
 	}, nil
 }

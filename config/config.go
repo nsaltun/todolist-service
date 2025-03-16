@@ -12,7 +12,11 @@ type AppConfig struct {
 }
 
 type PostgresConfig struct {
-	PostgresUrl string `env:"POSTGRES_DB_URL" envDefault:"postgres://postgres:postgres@localhost:5432/todolist?sslmode=disable"`
+	User     string `env:"POSTGRES_USER" envDefault:"todolist"`
+	Password string `env:"POSTGRES_PASSWORD" envDefault:"todolist.8080"`
+	Host     string `env:"POSTGRES_HOST" envDefault:"localhost"`
+	Port     int    `env:"POSTGRES_PORT" envDefault:"5432"`
+	Database string `env:"POSTGRES_DB" envDefault:"todolist"`
 }
 
 // NewAppConfig returns a new instance of AppConfig

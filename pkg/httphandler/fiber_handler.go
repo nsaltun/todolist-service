@@ -43,9 +43,8 @@ func Handle[R Request, Res Response](h HandlerInterface[R, Res]) fiber.Handler {
 
 		res, err := h.Handle(ctx, &req)
 		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(fiber.Map{
-				"error": err.Error(),
-			})
+			// Just return the error, let middleware handle it
+			return err
 		}
 		return c.JSON(res)
 	}

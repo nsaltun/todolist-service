@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,22 +17,8 @@ type PostgresConnection struct {
 	dbPool *pgxpool.Pool
 }
 
-// connection string exmaple:
-// postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
-// fmt.Sprintf(
-//
-//	"postgresql://%s:%s@%s:%d/%s?sslmode=%s",
-//	config.Username,
-//	config.Password,
-//	config.Host,
-//	config.Port,
-//	config.Database,
-//	config.SSLMode,
-//
-// )
 func NewPostgresConnection(config config.PostgresConfig) *PostgresConnection {
-
-	poolConfig, err := pgxpool.ParseConfig(config.PostgresUrl)
+	poolConfig, err := pgxpool.ParseConfig(connectionString(config))
 	if err != nil {
 		zap.L().Fatal("Unable to parse pool config", zap.Error(err))
 		return nil
@@ -54,7 +41,7 @@ func NewPostgresConnection(config config.PostgresConfig) *PostgresConnection {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	dbPool, err := pgxpool.NewWithConfig(ctx, &pgxpool.Config{})
+	dbPool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
 		zap.L().Fatal("Unable to create connection pool", zap.Error(err))
 		return nil
@@ -74,6 +61,18 @@ func NewPostgresConnection(config config.PostgresConfig) *PostgresConnection {
 	)
 
 	return &PostgresConnection{config: config, dbPool: dbPool}
+}
+
+func connectionString(c config.PostgresConfig) string {
+	//postgres://user:password@host:port/database?sslmode=disable
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		c.User,
+		c.Password,
+		c.Host,
+		c.Port,
+		c.Database,
+		"disable",
+	)
 }
 
 func (r *PostgresConnection) Close() {
